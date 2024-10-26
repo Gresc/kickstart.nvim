@@ -159,34 +159,67 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'node2',
+        'elixir',
       },
     }
 
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
-    dapui.setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
-      controls = {
-        icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
-        },
-      },
-    }
-
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close
     dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+    dap.adapters.node2 = {
+      type = 'executable',
+      command = 'node',
+      args = { os.getenv 'HOME' .. '/dev/microsoft/vscode-node-debug2/out/src/nodeDebug.js' },
+    }
+    dap.configurations.javascript = {
+      {
+        name = 'Launch',
+        type = 'node2',
+        request = 'launch',
+        program = '${file}',
+        cwd = vim.fn.getcwd(),
+        sourceMaps = true,
+        protocol = 'inspector',
+        console = 'integratedTerminal',
+      },
+      {
+        -- For this to work you need to make sure the node process is started with the `--inspect` flag.
+        name = 'Attach to process',
+        type = 'node2',
+        request = 'attach',
+        processId = require('dap.utils').pick_process,
+      },
+    }
+    require('dap').adapters['pwa-node'] = {
+      type = 'server',
+      host = 'localhost',
+      port = '${port}',
+      executable = {
+        command = 'node',
+        args = { os.getenv 'HOME' .. '/.devtools/js-debug/src/dapDebugServer.js', '${port}' },
+      },
+    }
+
+    dap.configurations.typescript = {
+      {
+        type = 'pwa-node',
+        request = 'launch',
+        name = 'Launch deno file',
+        runtimeExecutable = 'deno',
+        runtimeArgs = {
+          'run',
+          '--inspect-wait',
+          '--allow-all',
+        },
+        program = '${file}',
+        cwd = '${workspaceFolder}',
+        attachSimplePort = 9229,
+      },
+    }
 
     -- Install golang specific config
     require('dap-go').setup {
