@@ -117,6 +117,10 @@ vim.api.nvim_set_keymap('n', '<leader>e', ':edit %:h<CR>', { noremap = true, sil
 -- Map <leader>e to open Oil in the current directory
 vim.api.nvim_set_keymap('n', '<leader>E', ':edit .<CR>', { noremap = true, silent = true })
 
+vim.g.markdown_fenced_languages = {
+  'ts=typescript',
+}
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -551,9 +555,17 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        --        ts_ls = {},
         --
-
+        ts_ls = {
+          on_attach = on_attach,
+          root_dir = require('lspconfig').util.root_pattern 'package.json',
+          single_file_support = false,
+        },
+        denols = {
+          on_attach = on_attach,
+          root_dir = require('lspconfig').util.root_pattern('deno.json', 'deno.jsonc'),
+        },
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
