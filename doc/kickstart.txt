@@ -5,7 +5,7 @@ Kickstart.nvim is a project to help you get started on your neovim journey.
 
                                                             *kickstart-is-not*
 It is not:
-- Complete framework for every plugin under the sun
+
 - Place to add every plugin that could ever be useful
 
                                                                 *kickstart-is*
